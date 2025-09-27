@@ -3,27 +3,674 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>线上书店</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>挑战寻宝大冒险</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', '楷体', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #87CEEB, #98FB98);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            color: #8B4513;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+        
+        .difficulty-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #8B4513;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .steps-container {
+            background: #F0F8FF;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px dashed #4169E1;
+        }
+        
+        .step {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            border-left: 5px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .step.active {
+            border-left-color: #FFD700;
+            background: #FFFACD;
+            transform: scale(1.02);
+        }
+        
+        .step.completed {
+            border-left-color: #32CD32;
+            background: #F0FFF0;
+        }
+        
+        .step.failed {
+            border-left-color: #FF4500;
+            background: #FFF0F0;
+        }
+        
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            background: #4169E1;
+            color: white;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #2F4F4F;
+            font-weight: bold;
+        }
+        
+        .step-description {
+            font-size: 0.9rem;
+            color: #696969;
+        }
+        
+        .step-risk {
+            font-size: 0.8rem;
+            color: #FF4500;
+            margin-top: 5px;
+        }
+        
+        .control-panel {
+            background: #FFEBCD;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #DEB887;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #FF6347, #FF4500);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,99,71,0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .hint-btn {
+            background: linear-gradient(45deg, #4169E1, #1E90FF);
+        }
+        
+        .retry-btn {
+            background: linear-gradient(45deg, #32CD32, #228B22);
+        }
+        
+        .result-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            min-height: 100px;
+            border: 2px solid #32CD32;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .success {
+            background: #F0FFF0;
+            border-color: #32CD32;
+            color: #228B22;
+            font-weight: bold;
+        }
+        
+        .failure {
+            background: #FFF0F0;
+            border-color: #FF4500;
+            color: #DC143C;
+            font-weight: bold;
+        }
+        
+        .treasure-img {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .progress-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #4169E1;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #F0F0F0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .hint-area {
+            background: #E6F7FF;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #1890FF;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4169E1;
+        }
+        
+        .celebration {
+            animation: celebrate 0.5s ease-in-out;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .challenge-info {
+            background: #FFFACD;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <header>
-        <div class="logo">小栩的书店</div>
-        <div class="cart-icon">
-            🛒
-            <span class="cart-count">0</span>
-        </div>
-    </header>
-
-    <!-- 书籍展示区 -->
     <div class="container">
-        <h2>精选图书</h2>
-        <div class="books-container" id="books-container">
-            <!-- 书籍卡片将通过JavaScript动态生成 -->
+        <header>
+            <h1>🎯 挑战寻宝大冒险 🎯</h1>
+            <p>适度的挑战，更大的成就感！</p>
+            <div class="difficulty-info">成功率约60% - 考验你的运气和智慧！</div>
+        </header>
+        
+        <div class="game-area">
+            <div class="steps-container">
+                <div class="step" id="step1">
+                    <div class="step-icon">🔍</div>
+                    <div class="step-content">
+                        <div class="step-title">第一步：发现藏宝图</div>
+                        <div class="step-description">在爷爷的旧书里找到一张神秘地图</div>
+                        <div class="step-risk">🛡️ 安全步骤</div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step2">
+                    <div class="step-icon">🗺️</div>
+                    <div class="step-content">
+                        <div class="step-title">第二步：穿越迷雾沼泽</div>
+                        <div class="step-description">小心！沼泽里有隐藏的危险</div>
+                        <div class="step-risk">⚠️ 30%失败概率</div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step3">
+                    <div class="step-icon">🌳</div>
+                    <div class="step-content">
+                        <div class="step-title">第三步：解开古老谜题</div>
+                        <div class="step-description">石门上的神秘符号需要正确解读</div>
+                        <div class="step-risk">⚠️ 需要正确选择</div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step4">
+                    <div class="step-icon">🎮</div>
+                    <div class="step-content">
+                        <div class="step-title">第四步：通过守护者考验</div>
+                        <div class="step-description">森林守护者会测试你的智慧</div>
+                        <div class="step-risk">⚠️ 40%失败概率</div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step5">
+                    <div class="step-icon">💎</div>
+                    <div class="step-content">
+                        <div class="step-title">第五步：获得宝藏！</div>
+                        <div class="step-description">成功通过所有挑战！</div>
+                        <div class="step-risk">🛡️ 安全步骤</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-text">冒险进度：<span id="progressPercent">0%</span></div>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div>尝试次数</div>
+                        <div class="stat-value" id="attemptCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div>成功次数</div>
+                        <div class="stat-value" id="successCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div>成功率</div>
+                        <div class="stat-value" id="successRate">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <h2>游戏控制台</h2>
+                <button class="btn" id="startBtn">开始寻宝冒险</button>
+                <button class="btn hint-btn" id="hintBtn">给我提示</button>
+                <button class="btn retry-btn" id="retryBtn" style="display: none;">再试一次</button>
+                <button class="btn" id="resetBtn" disabled>重新开始</button>
+                
+                <div class="result-area" id="resultArea">
+                    点击开始按钮，开启你的寻宝之旅！
+                </div>
+                
+                <div class="hint-area" id="hintArea" style="display: none;">
+                    <strong>💡 小提示：</strong>
+                    <span id="hintText">仔细观察，冷静选择！</span>
+                </div>
+                
+                <!-- 谜题游戏区域 -->
+                <div id="puzzleGame" style="display: none; text-align: center; margin-top: 15px;">
+                    <div class="challenge-info">选择正确的符号组合来解开古老谜题！</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0;">
+                        <button class="puzzle-btn" data-solution="moon">🌙 月亮符号</button>
+                        <button class="puzzle-btn" data-solution="sun">☀️ 太阳符号</button>
+                        <button class="puzzle-btn" data-solution="star">⭐ 星星符号</button>
+                        <button class="puzzle-btn" data-solution="water">💧 水滴符号</button>
+                    </div>
+                    <p>当前选择：<span id="puzzleChoice">尚未选择</span></p>
+                </div>
+                
+                <!-- 守护者考验区域 -->
+                <div id="guardianGame" style="display: none; text-align: center; margin-top: 15px;">
+                    <div class="challenge-info">快速点击！在时间结束前收集足够的魔法光球</div>
+                    <div style="margin: 15px 0;">
+                        <button id="magicBall" style="font-size: 2rem; background: none; border: none; cursor: pointer;">⚪</button>
+                    </div>
+                    <div>时间剩余：<span id="timeLeft">5</span>秒 | 收集数量：<span id="ballCount">0</span>/10</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // 有挑战性的寻宝游戏 - 约60%成功率
+        class ChallengingTreasureGame {
+            static async discoverMap() {
+                await delay(1000);
+                return "📜 在爷爷的旧书里发现了一张泛黄的藏宝图！地图上画着一个神秘的X标记。";
+            }
+            
+            static async crossSwamp() {
+                await delay(1500);
+                // 30%概率在沼泽失败
+                if (Math.random() < 0.3) {
+                    throw new Error("糟糕！在迷雾沼泽中迷路了，还遇到了沼泽怪物！不得不撤退...");
+                }
+                return "🌊 成功穿越危险的迷雾沼泽！虽然湿了鞋子，但安全到达对岸。";
+            }
+            
+            static async solvePuzzle() {
+                await delay(1200);
+                return new Promise((resolve, reject) => {
+                    document.getElementById('puzzleGame').style.display = 'block';
+                    document.getElementById('hintArea').style.display = 'block';
+                    document.getElementById('hintText').textContent = '仔细看石门上的提示：月亮代表着夜晚，星星代表着天空...';
+                    
+                    const correctSolution = 'moon'; // 正确答案是月亮符号
+                    
+                    document.querySelectorAll('.puzzle-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const playerChoice = this.dataset.solution;
+                            document.getElementById('puzzleChoice').textContent = this.textContent;
+                            
+                            if (playerChoice === correctSolution) {
+                                resolve("🔓 正确！石门缓缓打开，露出了后面的通道！");
+                            } else {
+                                reject(new Error("错误的选择！石门发出警告声，通道被封锁了..."));
+                            }
+                            
+                            document.getElementById('puzzleGame').style.display = 'none';
+                        });
+                    });
+                });
+            }
+            
+            static async passGuardianTest() {
+                await delay(1000);
+                return new Promise((resolve, reject) => {
+                    document.getElementById('guardianGame').style.display = 'block';
+                    document.getElementById('hintArea').style.display = 'block';
+                    document.getElementById('hintText').textContent = '快速点击光球！需要收集10个才能通过考验！';
+                    
+                    let ballCount = 0;
+                    let timeLeft = 5;
+                    const timeLimit = 5;
+                    const requiredBalls = 10;
+                    
+                    const magicBall = document.getElementById('magicBall');
+                    const timeDisplay = document.getElementById('timeLeft');
+                    const countDisplay = document.getElementById('ballCount');
+                    
+                    magicBall.addEventListener('click', function() {
+                        ballCount++;
+                        countDisplay.textContent = ballCount;
+                        magicBall.textContent = '✨';
+                        setTimeout(() => { magicBall.textContent = '⚪'; }, 200);
+                        
+                        if (ballCount >= requiredBalls) {
+                            resolve(`🎉 太棒了！你收集了${ballCount}个魔法光球，守护者很满意！`);
+                            document.getElementById('guardianGame').style.display = 'none';
+                        }
+                    });
+                    
+                    const timer = setInterval(() => {
+                        timeLeft--;
+                        timeDisplay.textContent = timeLeft;
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            if (ballCount < requiredBalls) {
+                                reject(new Error(`时间到！只收集了${ballCount}个光球，需要${requiredBalls}个才能通过。`));
+                            }
+                            document.getElementById('guardianGame').style.display = 'none';
+                        }
+                    }, 1000);
+                });
+            }
+            
+            static async getTreasure() {
+                await delay(2000);
+                const treasures = [
+                    "一箱闪闪发光的金币和宝石！💰",
+                    "古老的魔法项链，据说能带来好运！✨",
+                    "装满珍贵文物的宝箱！🏺",
+                    "传说中的智慧之书！📚",
+                    "会说话的魔法鹦鹉！🦜"
+                ];
+                const randomTreasure = treasures[Math.floor(Math.random() * treasures.length)];
+                return `💎 恭喜！你成功通过了所有挑战，找到了：${randomTreasure}`;
+            }
+        }
+
+        // 工具函数
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultArea = document.getElementById('resultArea');
+        const progressBar = document.getElementById('progress');
+        const progressPercent = document.getElementById('progressPercent');
+        const attemptCount = document.getElementById('attemptCount');
+        const successCount = document.getElementById('successCount');
+        const successRate = document.getElementById('successRate');
+
+        let isGameActive = false;
+        let totalAttempts = 0;
+        let successfulAttempts = 0;
+
+        // 更新统计信息
+        function updateStats() {
+            attemptCount.textContent = totalAttempts;
+            successCount.textContent = successfulAttempts;
+            const rate = totalAttempts > 0 ? Math.round((successfulAttempts / totalAttempts) * 100) : 0;
+            successRate.textContent = rate + '%';
+        }
+
+        // 更新步骤状态
+        function updateStep(stepNumber, status) {
+            const step = document.getElementById(`step${stepNumber}`);
+            step.classList.remove('active', 'completed', 'failed');
+            
+            if (status === 'active') {
+                step.classList.add('active');
+            } else if (status === 'completed') {
+                step.classList.add('completed');
+            } else if (status === 'failed') {
+                step.classList.add('failed');
+            }
+        }
+
+        // 更新进度
+        function updateProgress(step) {
+            const progress = (step / 5) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${progress}%`;
+        }
+
+        // 显示结果
+        function showResult(message, isSuccess = false) {
+            resultArea.textContent = message;
+            resultArea.classList.remove('success', 'failure');
+            
+            if (isSuccess) {
+                resultArea.classList.add('success');
+                resultArea.innerHTML = `
+                    <div>
+                        <div class="treasure-img">💎🎉✨</div>
+                        <div>${message}</div>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">你真是太棒了！</div>
+                    </div>
+                `;
+            } else {
+                resultArea.classList.add('failure');
+            }
+        }
+
+        // 主要游戏流程
+        async function startAdventure() {
+            if (isGameActive) return;
+            
+            isGameActive = true;
+            totalAttempts++;
+            updateStats();
+            startBtn.disabled = true;
+            resetBtn.disabled = false;
+            retryBtn.style.display = 'none';
+            document.getElementById('hintArea').style.display = 'block';
+            
+            try {
+                // 第一步：发现地图（安全）
+                updateStep(1, 'active');
+                updateProgress(1);
+                showResult("正在寻找藏宝图...");
+                const mapResult = await ChallengingTreasureGame.discoverMap();
+                updateStep(1, 'completed');
+                showResult(mapResult);
+                
+                // 第二步：穿越沼泽（30%失败概率）
+                updateStep(2, 'active');
+                updateProgress(2);
+                showResult("正在穿越危险的迷雾沼泽...");
+                const swampResult = await ChallengingTreasureGame.crossSwamp();
+                updateStep(2, 'completed');
+                showResult(swampResult);
+                
+                // 第三步：解开谜题（需要正确选择）
+                updateStep(3, 'active');
+                updateProgress(3);
+                showResult("面对古老的石门谜题...");
+                const puzzleResult = await ChallengingTreasureGame.solvePuzzle();
+                updateStep(3, 'completed');
+                showResult(puzzleResult);
+                
+                // 第四步：守护者考验（有时间限制）
+                updateStep(4, 'active');
+                updateProgress(4);
+                showResult("面对森林守护者的考验...");
+                const guardianResult = await ChallengingTreasureGame.passGuardianTest();
+                updateStep(4, 'completed');
+                showResult(guardianResult);
+                
+                // 第五步：获得宝藏（安全）
+                updateStep(5, 'active');
+                updateProgress(5);
+                showResult("正在打开宝箱...");
+                const treasureResult = await ChallengingTreasureGame.getTreasure();
+                updateStep(5, 'completed');
+                showResult(treasureResult, true);
+                
+                successfulAttempts++;
+                updateStats();
+                
+                // 庆祝动画
+                resultArea.classList.add('celebration');
+                
+            } catch (error) {
+                showResult(`冒险失败：${error.message}`);
+                retryBtn.style.display = 'block';
+            } finally {
+                isGameActive = false;
+                startBtn.disabled = false;
+                document.getElementById('puzzleGame').style.display = 'none';
+                document.getElementById('guardianGame').style.display = 'none';
+            }
+        }
+
+        // 提示功能
+        hintBtn.addEventListener('click', function() {
+            const hints = [
+                "沼泽步骤有30%失败概率，纯看运气！",
+                "石门谜题：选择月亮符号（🌙）",
+                "守护者考验：快速点击光球，需要收集10个",
+                "保持冷静，你一定能成功！",
+                "失败是成功之母，多试几次！"
+            ];
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            document.getElementById('hintText').textContent = randomHint;
+        });
+
+        // 重试当前步骤
+        retryBtn.addEventListener('click', startAdventure);
+
+        // 重置游戏
+        resetBtn.addEventListener('click', function() {
+            if (!isGameActive) {
+                for (let i = 1; i <= 5; i++) {
+                    updateStep(i, '');
+                }
+                updateProgress(0);
+                showResult("游戏已重置，点击开始按钮重新冒险！");
+                resetBtn.disabled = true;
+                retryBtn.style.display = 'none';
+                document.getElementById('hintArea').style.display = 'none';
+                resultArea.classList.remove('success', 'failure', 'celebration');
+            }
+        });
+
+        // 事件监听
+        startBtn.addEventListener('click', startAdventure);
+
+        // 初始化
+        document.getElementById('hintText').textContent = "欢迎！这个游戏有适度的挑战性，成功率约60%！";
+        updateStats();
+    </script>
 </body>
 </html>
